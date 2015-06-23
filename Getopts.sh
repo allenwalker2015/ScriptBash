@@ -6,11 +6,18 @@ CASE=lower
 
 #$1
 
-           if [ -d $1 ]
-           then
+if [ "$0"  == ./Getopts.sh ]; then
+echo "Es getoptsssssssssss"
+fi
+if [ -d "$1" ] ; then
+echo "Es un directoriooooo" 
+fi
 
-           echo 'Si lo haceeeeeeeeee'
-           fi 
+         #  if [ -d $1 ]
+          # then
+
+           #echo 'Si lo haceeeeeeeeee'
+           #fi 
 
 while getopts :bt:u arg
 do
