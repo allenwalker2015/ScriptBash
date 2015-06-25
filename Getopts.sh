@@ -1,37 +1,63 @@
 #!/bin/bash
-
+#---------------------------------VERIFICACIONES DEL DIRECTORIO /var/--------------------------#
 ls /var/Proyecto 1>/dev/null 2>/dev/null
 if [ ! $? == 0 ]; then #no existe esa carpeta
    mkdir /var/Proyecto 2>/dev/null
-   #echo "*******?"$?
    if [ ! $? == 0 ]; then
       echo "Error."
       echo "NO SE PUEDE CREAR. VERIFIQUE SUS PERMISOS."
-      echo "Sus permisos para el directorio /var/ deben de ser: drwxrwxrwx"
-      echo "Sus permisos para el directorio /etc/ deben de ser: drwxrwxrwx"
+      echo "Sus permisos para el directorio /var/ deben ser: drwxrwxrwx"
+      echo ""
       exit 1
    fi
 fi
 
-#VARIABLES CAMBIABLES
-AYUDA=`grep "^AYUDA" /etc/VariablesConfigurables.sh | sed 's/AYUDA=\(.*\)/\1/g'`
-PORCENTAJE=`grep "^PORCENTAJE" /etc/VariablesConfigurables.sh | sed 's/PORCENTAJE=\(.*\)/\1/g'`
-DPROFUNDIDAD=`grep "^DPROFUNDIDAD" /etc/VariablesConfigurables.sh | sed 's/DPROFUNDIDAD=\(.*\)/\1/g'`
+ls /var/Proyecto/ArchivoProyecto 1>/dev/null 2>/dev/null
+if [ ! $? == 0 ]; then
+   touch /var/Proyecto/ArchivoProyecto 2>/dev/null
+      if [ ! $? == 0 ]; then
+         echo "Error."
+         echo "NO SE PUEDE CREAR. VERIFIQUE SUS PERMISOS."
+         echo "Sus permisos para el directorio /var/ deben ser: drwxrwxrwx"
+         echo ""
+         exit 1
+      fi
+fi
+
+#---------------------------------VERIFICACIONES DEL DIRECTORIO /etc/--------------------------#
+ls /etc/variables.sh 1>/dev/null 2>/dev/null
+   if [ ! $? == 0 ]; then
+      echo "" >> /var/Proyecto/ArchivoProyecto
+      echo "*********************************************************************" >> /var/Proyecto/ArchivoProyecto
+      date >> /var/Proyecto/ArchivoProyecto
+      echo "Error." >> /var/Proyecto/ArchivoProyecto
+      echo "Su computadora no cumple con los requisitos mínimos para poder ejecutar este comando." >> /var/Proyecto/ArchivoProyecto
+      echo "Error."
+      echo "Su computadora no cumple con los requisitos mínimos para poder ejecutar este comando."
+      logger -p auth.error -t PROYECTO_IASGL No cumple requerimientos mínimos
+      exit 1
+   fi
+AYUDA=`grep "^AYUDA" /etc/variables.sh | sed 's/AYUDA=\(.*\)/\1/g'` 2>/dev/null
+PORCENTAJE=`grep "^PORCENTAJE" /etc/variables.sh | sed 's/PORCENTAJE=\(.*\)/\1/g'`
+DPROFUNDIDAD=`grep "^DPROFUNDIDAD" /etc/variables.sh | sed 's/DPROFUNDIDAD=\(.*\)/\1/g'`
 TMPDIR=
 
 function AYUDA(){
    echo "*Mostrar sólo ayuda*"
+   #---leer archivo de ayuda---
 }
 
 function PROCESO(){
    ArchivosReglaresT_A=`find ${TMPDIR} -maxdepth 1 -type f 2>/dev/null`
 
    if [ ! $? == 0 ]; then
-      date > /var/Proyecto/ArchivoProyecto
-      echo "Error." > /var/Proyecto/ArchivoProyecto
-      echo "Su computadora no cumple con los requisitos mínimos para poder ejecutar este comando." > /var/Proyecto/ArchivoProyecto
-      #echo "Error." 
-      #echo "Su computadora no cumple con los requisitos mínimos para poder ejecutar este comando."
+      echo "" >> /var/Proyecto/ArchivoProyecto
+      echo "*********************************************************************" >> /var/Proyecto/ArchivoProyecto
+      date >> /var/Proyecto/ArchivoProyecto
+      echo "Error." >> /var/Proyecto/ArchivoProyecto
+      echo "Su computadora no cumple con los requisitos mínimos para poder ejecutar este comando." >> /var/Proyecto/ArchivoProyecto
+      echo "Error."
+      echo "Su computadora no cumple con los requisitos mínimos para poder ejecutar este comando."
       logger -p auth.error -t PROYECTO_IASGL No cumple requerimientos mínimos
       exit 1
    fi
@@ -71,11 +97,13 @@ function PROCESO_RECURSIVO(){
    ArchivosReglaresT_A=`find ${TMPDIR} -type f 2>/dev/null`
    
    if [ ! $? == 0 ]; then
-      date > /var/Proyecto/ArchivoProyecto
+      echo "" >> /var/Proyecto/ArchivoProyecto
+      echo "*********************************************************************" >> /var/Proyecto/ArchivoProyecto
+      date >> /var/Proyecto/ArchivoProyecto
       echo "Error." >> /var/Proyecto/ArchivoProyecto
       echo "Su computadora no cumple con los requisitos mínimos para poder ejecutar este comando." >> /var/Proyecto/ArchivoProyecto
-      #echo "Error."
-      #echo "Su computadora no cumple con los requisitos mínimos para poder ejecutar este comando."
+      echo "Error."
+      echo "Su computadora no cumple con los requisitos mínimos para poder ejecutar este comando."
       logger -p auth.error -t PROYECTO_IASGL No cumple requerimientos mínimos
       exit 1
    fi
@@ -113,10 +141,31 @@ function PROCESO_RECURSIVO(){
 function NORMAL(){
    PROCESO
    if [ "$ArchivosReglaresT" == 0 ]; then
+      echo "" >> /var/Proyecto/ArchivoProyecto
+      echo "*********************************************************************" >> /var/Proyecto/ArchivoProyecto
+      date >> /var/Proyecto/ArchivoProyecto
+      echo "El directorio que usted ingreso es: "$TMPDIR >> /var/Proyecto/ArchivoProyecto
+      echo "El directorio que usted ingreso se encuentra vacío." >> /var/Proyecto/ArchivoProyecto
       echo "El directorio que usted ingreso es: "$TMPDIR
       echo "El directorio que usted ingreso se encuentra vacío."
    else
-      echo "El directorio que usted ingreso es: "$TMPDIR > /var/
+      echo "" >> /var/Proyecto/ArchivoProyecto
+      echo "*********************************************************************" >> /var/Proyecto/ArchivoProyecto
+      date >> /var/Proyecto/ArchivoProyecto
+      echo "El directorio que usted ingreso es: "$TMPDIR >> /var/Proyecto/ArchivoProyecto
+      echo "La cantidad total de archivos regulares es: "${ArchivosReglaresT} >> /var/Proyecto/ArchivoProyecto
+      echo "" >> /var/Proyecto/ArchivoProyecto
+      echo "IMAGENES: "$sumaImagenes >> /var/Proyecto/ArchivoProyecto
+      echo "DOCUMENTOS: "$sumaDocumentos >> /var/Proyecto/ArchivoProyecto
+      echo "AUDIO: "$sumaAudio >> /var/Proyecto/ArchivoProyecto
+      echo "VIDEO: "$sumaVideo >> /var/Proyecto/ArchivoProyecto
+      echo "COMPRIMIDOS: "$sumaComprimidos >> /var/Proyecto/ArchivoProyecto
+      echo "EJECUTABLES: "$sumaEjecutables >> /var/Proyecto/ArchivoProyecto
+      echo "LIBRERIAS: "$sumaCoFuLibrerias >> /var/Proyecto/ArchivoProyecto
+      echo "ARCHIVOS DEL SISTEMA: "$sumaArchSistema >> /var/Proyecto/ArchivoProyecto
+      echo "OTROS: "${otros} >> /var/Proyecto/ArchivoProyecto
+      echo ""
+      echo "El directorio que usted ingreso es: "$TMPDIR
       echo "La cantidad total de archivos regulares es: "${ArchivosReglaresT}
       echo ""
       echo "IMAGENES: "$sumaImagenes
@@ -134,9 +183,30 @@ function NORMAL(){
 function PORCENTAJE(){
    PROCESO
    if [ "$ArchivosReglaresT" == 0 ]; then
+      echo "" >> /var/Proyecto/ArchivoProyecto
+      echo "*********************************************************************" >> /var/Proyecto/ArchivoProyecto
+      date >> /var/Proyecto/ArchivoProyecto
+      echo "El directorio que usted ingreso es: "$TMPDIR >> /var/Proyecto/ArchivoProyecto
+      echo "El directorio que usted ingreso se encuentra vacío." >> /var/Proyecto/ArchivoProyecto
       echo "El directorio que usted ingreso es: "$TMPDIR
       echo "El directorio que usted ingreso se encuentra vacío."
    else
+      echo "" >> /var/Proyecto/ArchivoProyecto
+      echo "*********************************************************************" >> /var/Proyecto/ArchivoProyecto
+      date >> /var/Proyecto/ArchivoProyecto
+      echo "El directorio que usted ingreso es: "$TMPDIR >> /var/Proyecto/ArchivoProyecto
+      echo "La cantidad total de archivos regulares es: "${ArchivosReglaresT} >> /var/Proyecto/ArchivoProyecto
+      echo "" >> /var/Proyecto/ArchivoProyecto
+      echo "IMAGENES: "$((100*$sumaImagenes/$ArchivosReglaresT))"%" >> /var/Proyecto/ArchivoProyecto
+      echo "DOCUMENTOS: "$((100*$sumaDocumentos/$ArchivosReglaresT))"%" >> /var/Proyecto/ArchivoProyecto
+      echo "AUDIO: "$((100*$sumaAudio/$ArchivosReglaresT))"%" >> /var/Proyecto/ArchivoProyecto
+      echo "VIDEO: "$((100*$sumaVideo/$ArchivosReglaresT))"%" >> /var/Proyecto/ArchivoProyecto
+      echo "COMPRIMIDOS: "$((100*$sumaComprimidos/$ArchivosReglaresT))"%" >> /var/Proyecto/ArchivoProyecto
+      echo "EJECUTABLES: "$((100*$sumaEjecutables/$ArchivosReglaresT))"%" >> /var/Proyecto/ArchivoProyecto
+      echo "LIBRERIAS: "$((100*$sumaCoFuLibrerias/$ArchivosReglaresT))"%" >> /var/Proyecto/ArchivoProyecto
+      echo "ARCHIVOS DEL SISTEMA: "$((100*$sumaArchSistema/$ArchivosReglaresT))"%" >> /var/Proyecto/ArchivoProyecto
+      echo "OTROS: "$((100*$otros/$ArchivosReglaresT))"%" >> /var/Proyecto/ArchivoProyecto
+      echo ""
       echo "El directorio que usted ingreso es: "$TMPDIR
       echo "La cantidad total de archivos regulares es: "${ArchivosReglaresT}
       echo ""
@@ -155,9 +225,30 @@ function PORCENTAJE(){
 function RECURSIVO(){
    PROCESO_RECURSIVO
    if [ "$ArchivosReglaresT" == 0 ]; then
+      echo "" >> /var/Proyecto/ArchivoProyecto
+      echo "*********************************************************************" >> /var/Proyecto/ArchivoProyecto
+      date >> /var/Proyecto/ArchivoProyecto
+      echo "El directorio que usted ingreso es: "$TMPDIR >> /var/Proyecto/ArchivoProyecto
+      echo "El directorio que usted ingreso se encuentra vacío." >> /var/Proyecto/ArchivoProyecto
       echo "El directorio que usted ingreso es: "$TMPDIR
       echo "El directorio que usted ingreso se encuentra vacío."
    else
+      echo "" >> /var/Proyecto/ArchivoProyecto
+      echo "*********************************************************************" >> /var/Proyecto/ArchivoProyecto
+      date >> /var/Proyecto/ArchivoProyecto
+      echo "El directorio que usted ingreso es: "$TMPDIR >> /var/Proyecto/ArchivoProyecto
+      echo "La cantidad total de archivos regulares es: "${ArchivosReglaresT} >> /var/Proyecto/ArchivoProyecto
+      echo "" >> /var/Proyecto/ArchivoProyecto
+      echo "IMAGENES: "$sumaImagenes >> /var/Proyecto/ArchivoProyecto
+      echo "DOCUMENTOS: "$sumaDocumentos >> /var/Proyecto/ArchivoProyecto
+      echo "AUDIO: "$sumaAudio >> /var/Proyecto/ArchivoProyecto
+      echo "VIDEO: "$sumaVideo >> /var/Proyecto/ArchivoProyecto
+      echo "COMPRIMIDOS: "$sumaComprimidos >> /var/Proyecto/ArchivoProyecto
+      echo "EJECUTABLES: "$sumaEjecutables >> /var/Proyecto/ArchivoProyecto
+      echo "LIBRERIAS: "$sumaCoFuLibrerias >> /var/Proyecto/ArchivoProyecto
+      echo "ARCHIVOS DEL SISTEMA: "$sumaArchSistema >> /var/Proyecto/ArchivoProyecto
+      echo "OTROS: "${otros} >> /var/Proyecto/ArchivoProyecto
+      echo ""
       echo "El directorio que usted ingreso es: "$TMPDIR
       echo "La cantidad total de archivos regulares es: "${ArchivosReglaresT}
       echo ""
@@ -176,9 +267,30 @@ function RECURSIVO(){
 function PORCENTAJE_RECURSIVO(){
    PROCESO_RECURSIVO
    if [ "$ArchivosReglaresT" == 0 ]; then
+      echo "" >> /var/Proyecto/ArchivoProyecto
+      echo "*********************************************************************" >> /var/Proyecto/ArchivoProyecto
+      date >> /var/Proyecto/ArchivoProyecto
+      echo "El directorio que usted ingreso es: "$TMPDIR >> /var/Proyecto/ArchivoProyecto
+      echo "El directorio que usted ingreso se encuentra vacío." >> /var/Proyecto/ArchivoProyecto
       echo "El directorio que usted ingreso es: "$TMPDIR
       echo "El directorio que usted ingreso se encuentra vacío."
    else
+      echo "" >> /var/Proyecto/ArchivoProyecto
+      echo "*********************************************************************" >> /var/Proyecto/ArchivoProyecto
+      date >> /var/Proyecto/ArchivoProyecto
+      echo "El directorio que usted ingreso es: "$TMPDIR >> /var/Proyecto/ArchivoProyecto
+      echo "La cantidad total de archivos regulares es: "${ArchivosReglaresT} >> /var/Proyecto/ArchivoProyecto
+      echo "" >> /var/Proyecto/ArchivoProyecto
+      echo "IMAGENES: "$((100*$sumaImagenes/$ArchivosReglaresT))"%" >> /var/Proyecto/ArchivoProyecto
+      echo "DOCUMENTOS: "$((100*$sumaDocumentos/$ArchivosReglaresT))"%" >> /var/Proyecto/ArchivoProyecto
+      echo "AUDIO: "$((100*$sumaAudio/$ArchivosReglaresT))"%" >> /var/Proyecto/ArchivoProyecto
+      echo "VIDEO: "$((100*$sumaVideo/$ArchivosReglaresT))"%" >> /var/Proyecto/ArchivoProyecto
+      echo "COMPRIMIDOS: "$((100*$sumaComprimidos/$ArchivosReglaresT))"%" >> /var/Proyecto/ArchivoProyecto
+      echo "EJECUTABLES: "$((100*$sumaEjecutables/$ArchivosReglaresT))"%" >> /var/Proyecto/ArchivoProyecto
+      echo "LIBRERIAS: "$((100*$sumaCoFuLibrerias/$ArchivosReglaresT))"%" >> /var/Proyecto/ArchivoProyecto
+      echo "ARCHIVOS DEL SISTEMA: "$((100*$sumaArchSistema/$ArchivosReglaresT))"%" >> /var/Proyecto/ArchivoProyecto
+      echo "OTROS: "$((100*$otros/$ArchivosReglaresT))"%" >> /var/Proyecto/ArchivoProyecto
+      echo ""
       echo "El directorio que usted ingreso es: "$TMPDIR
       echo "La cantidad total de archivos regulares es: "${ArchivosReglaresT}
       echo ""
@@ -194,7 +306,7 @@ function PORCENTAJE_RECURSIVO(){
    fi
 }
 
-################## FIN DE LAS FUNCIONES ##########################
+#------------------------------------FIN DE LAS FUNCIONES---------------------------------#
 
    while getopts :dhp: arg
       do
@@ -203,6 +315,10 @@ function PORCENTAJE_RECURSIVO(){
          h)   if [ $# == 1 ]; then
                  AYUDA=1
               else
+                 echo "" >> /var/Proyecto/ArchivoProyecto
+                 echo "*********************************************************************" >> /var/Proyecto/ArchivoProyecto
+                 date >> /var/Proyecto/ArchivoProyecto
+                 echo "Opción -h no se puede combinar." >> /var/Proyecto/ArchivoProyecto
                  echo "Opción -h no se puede combinar."
                  logger -p error -t PROYECTO_IASGL Combinación inválida
                  exit 1
@@ -211,7 +327,11 @@ function PORCENTAJE_RECURSIVO(){
               if [ "$NUMERO" == 1 ]; then
                  PORCENTAJE=$NUMERO
               else
-                 echo "Sólo se admite -p1 (Seleccione -h para ver la ayuda)."
+                 echo "" >> /var/Proyecto/ArchivoProyecto
+                 echo "*********************************************************************" >> /var/Proyecto/ArchivoProyecto
+                 date  >> /var/Proyecto/ArchivoProyecto
+                 echo "Sólo se admite -p1 (Seleccione -h para ver la ayuda)." >> /var/Proyecto/ArchivoProyecto
+                 echo "Sólo se admite -p1 (Seleccione -h para ver la ayuda)." 
                  logger -p error -t PROYECTO_IASGL Argumento inválido
                  exit 1
               fi
@@ -220,16 +340,28 @@ function PORCENTAJE_RECURSIVO(){
               if [ "$OPCION" == "d" ]; then
                  DPROFUNDIDAD=0
               fi ;;
-         :)   echo "Debe meter un argumento a la opción: -p1"
+         :)   echo "" >> /var/Proyecto/ArchivoProyecto
+              echo "*********************************************************************" >> /var/Proyecto/ArchivoProyecto
+              date >> /var/Proyecto/ArchivoProyecto
+              echo "Debe meter un argumento a la opción: -p1" >> /var/Proyecto/ArchivoProyecto
+              echo "Debe meter un argumento a la opción: -p1"
               logger -p auth.error -t PROYECTO_IASGL Falta argumento opción -p
               exit 1 ;;
-         \?)  echo "Opción inválida -$OPTARG ignorada."
+         \?)  echo "" >> /var/Proyecto/ArchivoProyecto
+              echo "*********************************************************************" >> /var/Proyecto/ArchivoProyecto
+              date >> /var/Proyecto/ArchivoProyecto
+              echo "Opción inválida -$OPTARG ignorada." >> /var/Proyecto/ArchivoProyecto
+              echo "Opción inválida -$OPTARG ignorada."
               logger -p auth.error -t PROYECTO_IASGL Opción inválida
               exit 1 ;;
       esac
    done
 
 if [ $# == 0 ]; then
+   echo "" >> /var/Proyecto/ArchivoProyecto
+   echo "*********************************************************************" >> /var/Proyecto/ArchivoProyecto
+   date >> /var/Proyecto/ArchivoProyecto
+   echo "Es necesario un directorio (Seleccione -h para ver la ayuda)." >> /var/Proyecto/ArchivoProyecto
    echo "Es necesario un directorio (Seleccione -h para ver la ayuda)."
    logger -p error -t PROYECTO_IASGL Falta directorio
    exit 1
@@ -256,6 +388,10 @@ elif [ $# == 1 ]; then
 
       exit 0     
    else
+      echo "" >> /var/Proyecto/ArchivoProyecto
+      echo "*********************************************************************" >> /var/Proyecto/ArchivoProyecto
+      date >> /var/Proyecto/ArchivoProyecto
+      echo "Argumento NO es directorio." >> /var/Proyecto/ArchivoProyecto
       echo "Argumento NO es directorio."
       logger -p error -t PROYECTO_IASGL Falta Argumento válido
       exit 1
@@ -267,6 +403,10 @@ elif [ $# == 3 ]; then
    TMPDIR=$3
 
 else
+   echo "" >> /var/Proyecto/ArchivoProyecto
+   echo "*********************************************************************" >> /var/Proyecto/ArchivoProyecto
+   date >> /var/Proyecto/ArchivoProyecto
+   echo "Cantidad argumentos inválida." >> /var/Proyecto/ArchivoProyecto
    echo "Cantidad argumentos inválida."
    logger -p error -t PROYECTO_IASGL Cantidad argumentos inválida
    exit 1
@@ -281,11 +421,19 @@ if [ -d "$TMPDIR" ]; then
    elif [ "$DPROFUNDIDAD" == 0 ]; then
       NORMAL
    else
+      echo "" >> /var/Proyecto/ArchivoProyecto
+      echo "*********************************************************************" >> /var/Proyecto/ArchivoProyecto
+      date  >> /var/Proyecto/ArchivoProyecto
+      echo "*Algo salió mal*" >> /var/Proyecto/ArchivoProyecto
       echo "*Algo salió mal*"
       logger -p error -t PROYECTO_IASGL Error desconocido
       exit 1
    fi   
 else
+   echo "" >> /var/Proyecto/ArchivoProyecto
+   echo "*********************************************************************" >> /var/Proyecto/ArchivoProyecto
+   date >> /var/Proyecto/ArchivoProyecto
+   echo "Argumento NO es directorio." >> /var/Proyecto/ArchivoProyecto
    echo "Argumento NO es directorio."
    logger -p error -t PROYECTO_IASGL Falta Argumento válido
    exit 1
@@ -300,4 +448,3 @@ echo "Profundidad: "$DPROFUNDIDAD
 echo "TMPDIR: "$TMPDIR
 
 exit 0
-
