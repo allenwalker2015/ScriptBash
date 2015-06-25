@@ -5,9 +5,10 @@ if [ ! $? == 0 ]; then #no existe esa carpeta
    mkdir /var/Proyecto 2>/dev/null
    if [ ! $? == 0 ]; then
       echo "Error."
-      echo "NO SE PUEDE CREAR. VERIFIQUE SUS PERMISOS."
+      echo "Razón: NO SE PUEDE CREAR CARPETA NECESARIA. VERIFIQUE SUS PERMISOS."
       echo "Sus permisos para el directorio /var/ deben ser: drwxrwxrwx"
       echo ""
+      logger -p error -t PROYECTO_IASGL Imposible crear carpeta necesaria
       exit 1
    fi
 fi
@@ -17,9 +18,10 @@ if [ ! $? == 0 ]; then
    touch /var/Proyecto/ArchivoProyecto 2>/dev/null
       if [ ! $? == 0 ]; then
          echo "Error."
-         echo "NO SE PUEDE CREAR. VERIFIQUE SUS PERMISOS."
+         echo "Razón: NO SE PUEDE CREAR ARCHIVO NECESARIO. VERIFIQUE SUS PERMISOS."
          echo "Sus permisos para el directorio /var/ deben ser: drwxrwxrwx"
          echo ""
+         logger -p error -t PROYECTO_IASGL Imposible crear archivo necesario
          exit 1
       fi
 fi
@@ -31,10 +33,10 @@ ls /etc/variables.sh 1>/dev/null 2>/dev/null
       echo "*********************************************************************" >> /var/Proyecto/ArchivoProyecto
       date >> /var/Proyecto/ArchivoProyecto
       echo "Error." >> /var/Proyecto/ArchivoProyecto
-      echo "Su computadora no cumple con los requisitos mínimos para poder ejecutar este comando." >> /var/Proyecto/ArchivoProyecto
+      echo "Razón: Su computadora no cumple con los requisitos mínimos para poder ejecutar este comando." >> /var/Proyecto/ArchivoProyecto
       echo "Error."
-      echo "Su computadora no cumple con los requisitos mínimos para poder ejecutar este comando."
-      logger -p auth.error -t PROYECTO_IASGL No cumple requerimientos mínimos
+      echo "Razón: Su computadora no cumple con los requisitos mínimos para poder ejecutar este comando."
+      logger -p error -t PROYECTO_IASGL No cumple requerimientos mínimos
       exit 1
    fi
 AYUDA=`grep "^AYUDA" /etc/variables.sh | sed 's/AYUDA=\(.*\)/\1/g'` 2>/dev/null
@@ -55,10 +57,10 @@ function PROCESO(){
       echo "*********************************************************************" >> /var/Proyecto/ArchivoProyecto
       date >> /var/Proyecto/ArchivoProyecto
       echo "Error." >> /var/Proyecto/ArchivoProyecto
-      echo "Su computadora no cumple con los requisitos mínimos para poder ejecutar este comando." >> /var/Proyecto/ArchivoProyecto
+      echo "Razón: Su computadora no cumple con los requisitos mínimos para poder ejecutar este comando." >> /var/Proyecto/ArchivoProyecto
       echo "Error."
-      echo "Su computadora no cumple con los requisitos mínimos para poder ejecutar este comando."
-      logger -p auth.error -t PROYECTO_IASGL No cumple requerimientos mínimos
+      echo "Razón: Su computadora no cumple con los requisitos mínimos para poder ejecutar este comando."
+      logger -p error -t PROYECTO_IASGL No cumple requerimientos mínimos
       exit 1
    fi
 
@@ -101,10 +103,10 @@ function PROCESO_RECURSIVO(){
       echo "*********************************************************************" >> /var/Proyecto/ArchivoProyecto
       date >> /var/Proyecto/ArchivoProyecto
       echo "Error." >> /var/Proyecto/ArchivoProyecto
-      echo "Su computadora no cumple con los requisitos mínimos para poder ejecutar este comando." >> /var/Proyecto/ArchivoProyecto
+      echo "Razón: Su computadora no cumple con los requisitos mínimos para poder ejecutar este comando." >> /var/Proyecto/ArchivoProyecto
       echo "Error."
-      echo "Su computadora no cumple con los requisitos mínimos para poder ejecutar este comando."
-      logger -p auth.error -t PROYECTO_IASGL No cumple requerimientos mínimos
+      echo "Razón: Su computadora no cumple con los requisitos mínimos para poder ejecutar este comando."
+      logger -p error -t PROYECTO_IASGL No cumple requerimientos mínimos
       exit 1
    fi
    ArchivosReglaresT=`find ${TMPDIR} -type f | egrep -c "*"`   
@@ -140,14 +142,14 @@ function PROCESO_RECURSIVO(){
 
 function NORMAL(){
    PROCESO
-   if [ "$ArchivosReglaresT" == 0 ]; then
+   if [ "$suma" == 0 ]; then
       echo "" >> /var/Proyecto/ArchivoProyecto
       echo "*********************************************************************" >> /var/Proyecto/ArchivoProyecto
       date >> /var/Proyecto/ArchivoProyecto
       echo "El directorio que usted ingreso es: "$TMPDIR >> /var/Proyecto/ArchivoProyecto
-      echo "El directorio que usted ingreso se encuentra vacío." >> /var/Proyecto/ArchivoProyecto
+      echo "El directorio que usted ingreso no contiene archivos regulares." >> /var/Proyecto/ArchivoProyecto
       echo "El directorio que usted ingreso es: "$TMPDIR
-      echo "El directorio que usted ingreso se encuentra vacío."
+      echo "El directorio que usted ingreso no contiene archivos regulares."
    else
       echo "" >> /var/Proyecto/ArchivoProyecto
       echo "*********************************************************************" >> /var/Proyecto/ArchivoProyecto
@@ -182,14 +184,14 @@ function NORMAL(){
 
 function PORCENTAJE(){
    PROCESO
-   if [ "$ArchivosReglaresT" == 0 ]; then
+   if [ "$suma" == 0 ]; then
       echo "" >> /var/Proyecto/ArchivoProyecto
       echo "*********************************************************************" >> /var/Proyecto/ArchivoProyecto
       date >> /var/Proyecto/ArchivoProyecto
       echo "El directorio que usted ingreso es: "$TMPDIR >> /var/Proyecto/ArchivoProyecto
-      echo "El directorio que usted ingreso se encuentra vacío." >> /var/Proyecto/ArchivoProyecto
+      echo "El directorio que usted ingreso no contiene archivos regulares." >> /var/Proyecto/ArchivoProyecto
       echo "El directorio que usted ingreso es: "$TMPDIR
-      echo "El directorio que usted ingreso se encuentra vacío."
+      echo "El directorio que usted ingreso no contiene archivos regulares."
    else
       echo "" >> /var/Proyecto/ArchivoProyecto
       echo "*********************************************************************" >> /var/Proyecto/ArchivoProyecto
@@ -224,14 +226,14 @@ function PORCENTAJE(){
 
 function RECURSIVO(){
    PROCESO_RECURSIVO
-   if [ "$ArchivosReglaresT" == 0 ]; then
+   if [ "$suma" == 0 ]; then
       echo "" >> /var/Proyecto/ArchivoProyecto
       echo "*********************************************************************" >> /var/Proyecto/ArchivoProyecto
       date >> /var/Proyecto/ArchivoProyecto
       echo "El directorio que usted ingreso es: "$TMPDIR >> /var/Proyecto/ArchivoProyecto
-      echo "El directorio que usted ingreso se encuentra vacío." >> /var/Proyecto/ArchivoProyecto
+      echo "El directorio que usted ingreso no contiene archivos regulares." >> /var/Proyecto/ArchivoProyecto
       echo "El directorio que usted ingreso es: "$TMPDIR
-      echo "El directorio que usted ingreso se encuentra vacío."
+      echo "El directorio que usted ingreso no contiene archivos regulares."
    else
       echo "" >> /var/Proyecto/ArchivoProyecto
       echo "*********************************************************************" >> /var/Proyecto/ArchivoProyecto
@@ -266,14 +268,14 @@ function RECURSIVO(){
 
 function PORCENTAJE_RECURSIVO(){
    PROCESO_RECURSIVO
-   if [ "$ArchivosReglaresT" == 0 ]; then
+   if [ "$suma" == 0 ]; then
       echo "" >> /var/Proyecto/ArchivoProyecto
       echo "*********************************************************************" >> /var/Proyecto/ArchivoProyecto
       date >> /var/Proyecto/ArchivoProyecto
       echo "El directorio que usted ingreso es: "$TMPDIR >> /var/Proyecto/ArchivoProyecto
-      echo "El directorio que usted ingreso se encuentra vacío." >> /var/Proyecto/ArchivoProyecto
+      echo "El directorio que usted ingreso no contiene archivos regulares." >> /var/Proyecto/ArchivoProyecto
       echo "El directorio que usted ingreso es: "$TMPDIR
-      echo "El directorio que usted ingreso se encuentra vacío."
+      echo "El directorio que usted ingreso no contiene archivos regulares."
    else
       echo "" >> /var/Proyecto/ArchivoProyecto
       echo "*********************************************************************" >> /var/Proyecto/ArchivoProyecto
@@ -318,9 +320,11 @@ function PORCENTAJE_RECURSIVO(){
                  echo "" >> /var/Proyecto/ArchivoProyecto
                  echo "*********************************************************************" >> /var/Proyecto/ArchivoProyecto
                  date >> /var/Proyecto/ArchivoProyecto
-                 echo "Opción -h no se puede combinar." >> /var/Proyecto/ArchivoProyecto
-                 echo "Opción -h no se puede combinar."
-                 logger -p error -t PROYECTO_IASGL Combinación inválida
+                 echo "Proceso abortado." >> /var/Proyecto/ArchivoProyecto
+                 echo "Proceso abortado."
+                 echo "Razón: opción -h no se puede combinar." >> /var/Proyecto/ArchivoProyecto
+                 echo "Razón: opción -h no se puede combinar."
+                 logger -p auth.error -t PROYECTO_IASGL Combinación inválida
                  exit 1
               fi ;;
          p)   NUMERO=$(echo $OPTARG | egrep --only-matching '^[0-9]+')
@@ -330,9 +334,11 @@ function PORCENTAJE_RECURSIVO(){
                  echo "" >> /var/Proyecto/ArchivoProyecto
                  echo "*********************************************************************" >> /var/Proyecto/ArchivoProyecto
                  date  >> /var/Proyecto/ArchivoProyecto
-                 echo "Sólo se admite -p1 (Seleccione -h para ver la ayuda)." >> /var/Proyecto/ArchivoProyecto
-                 echo "Sólo se admite -p1 (Seleccione -h para ver la ayuda)." 
-                 logger -p error -t PROYECTO_IASGL Argumento inválido
+                 echo "Proceso abortado." >> /var/Proyecto/ArchivoProyecto
+                 echo "Proceso abortado."
+                 echo "Razón: sólo se admite -p1 (Seleccione -h para ver la ayuda)." >> /var/Proyecto/ArchivoProyecto
+                 echo "Razón: sólo se admite -p1 (Seleccione -h para ver la ayuda)." 
+                 logger -p auth.error -t PROYECTO_IASGL Argumento inválido
                  exit 1
               fi
 
@@ -343,15 +349,19 @@ function PORCENTAJE_RECURSIVO(){
          :)   echo "" >> /var/Proyecto/ArchivoProyecto
               echo "*********************************************************************" >> /var/Proyecto/ArchivoProyecto
               date >> /var/Proyecto/ArchivoProyecto
-              echo "Debe meter un argumento a la opción: -p1" >> /var/Proyecto/ArchivoProyecto
-              echo "Debe meter un argumento a la opción: -p1"
-              logger -p auth.error -t PROYECTO_IASGL Falta argumento opción -p
+              echo "Proceso abortado." >> /var/Proyecto/ArchivoProyecto
+              echo "Proceso abortado."
+              echo "Razón: debe proveer un argumento a la opción: -p1" >> /var/Proyecto/ArchivoProyecto
+              echo "Razón: debe proveer un argumento a la opción: -p1"
+              logger -p auth.error -t PROYECTO_IASGL Sintaxis argumentos inválida
               exit 1 ;;
          \?)  echo "" >> /var/Proyecto/ArchivoProyecto
               echo "*********************************************************************" >> /var/Proyecto/ArchivoProyecto
               date >> /var/Proyecto/ArchivoProyecto
-              echo "Opción inválida -$OPTARG ignorada." >> /var/Proyecto/ArchivoProyecto
-              echo "Opción inválida -$OPTARG ignorada."
+              echo "Proceso abortado." >> /var/Proyecto/ArchivoProyecto
+              echo "Proceso abortado."
+              echo "Razón: opción inválida -$OPTARG detectada." >> /var/Proyecto/ArchivoProyecto
+              echo "Razón: opción inválida -$OPTARG detectada."
               logger -p auth.error -t PROYECTO_IASGL Opción inválida
               exit 1 ;;
       esac
@@ -361,9 +371,11 @@ if [ $# == 0 ]; then
    echo "" >> /var/Proyecto/ArchivoProyecto
    echo "*********************************************************************" >> /var/Proyecto/ArchivoProyecto
    date >> /var/Proyecto/ArchivoProyecto
-   echo "Es necesario un directorio (Seleccione -h para ver la ayuda)." >> /var/Proyecto/ArchivoProyecto
-   echo "Es necesario un directorio (Seleccione -h para ver la ayuda)."
-   logger -p error -t PROYECTO_IASGL Falta directorio
+   echo "Proceso abortado." >> /var/Proyecto/ArchivoProyecto
+   echo "Proceso abortado."
+   echo "Razón: es necesario un directorio (Seleccione -h para ver la ayuda)." >> /var/Proyecto/ArchivoProyecto
+   echo "Razón: es necesario un directorio (Seleccione -h para ver la ayuda)."
+   logger -p auth.error -t PROYECTO_IASGL Falta directorio
    exit 1
 elif [ $# == 1 ]; then
    TMPDIR=$1
@@ -391,9 +403,11 @@ elif [ $# == 1 ]; then
       echo "" >> /var/Proyecto/ArchivoProyecto
       echo "*********************************************************************" >> /var/Proyecto/ArchivoProyecto
       date >> /var/Proyecto/ArchivoProyecto
-      echo "Argumento NO es directorio." >> /var/Proyecto/ArchivoProyecto
-      echo "Argumento NO es directorio."
-      logger -p error -t PROYECTO_IASGL Falta Argumento válido
+      echo "Proceso abortado." >> /var/Proyecto/ArchivoProyecto
+      echo "Proceso abortado."
+      echo "Razón: argumento NO es directorio." >> /var/Proyecto/ArchivoProyecto
+      echo "Razón: argumento NO es directorio."
+      logger -p auth.error -t PROYECTO_IASGL Falta Argumento válido
       exit 1
    fi      
 elif [ $# == 2 ]; then
@@ -406,9 +420,11 @@ else
    echo "" >> /var/Proyecto/ArchivoProyecto
    echo "*********************************************************************" >> /var/Proyecto/ArchivoProyecto
    date >> /var/Proyecto/ArchivoProyecto
-   echo "Cantidad argumentos inválida." >> /var/Proyecto/ArchivoProyecto
-   echo "Cantidad argumentos inválida."
-   logger -p error -t PROYECTO_IASGL Cantidad argumentos inválida
+   echo "Proceso abortado." >> /var/Proyecto/ArchivoProyecto
+   echo "Proceso abortado."
+   echo "Razón: cantidad argumentos inválida." >> /var/Proyecto/ArchivoProyecto
+   echo "Razón: cantidad argumentos inválida."
+   logger -p auth.error -t PROYECTO_IASGL Cantidad argumentos inválida
    exit 1
 fi
 
@@ -424,8 +440,10 @@ if [ -d "$TMPDIR" ]; then
       echo "" >> /var/Proyecto/ArchivoProyecto
       echo "*********************************************************************" >> /var/Proyecto/ArchivoProyecto
       date  >> /var/Proyecto/ArchivoProyecto
-      echo "*Algo salió mal*" >> /var/Proyecto/ArchivoProyecto
-      echo "*Algo salió mal*"
+      echo "Error." >> /var/Proyecto/ArchivoProyecto
+      echo "Error."
+      echo "Razón: error encontrado en archivo de configuración." >> /var/Proyecto/ArchivoProyecto
+      echo "Razón: error encontrado en archivo de configuración."
       logger -p error -t PROYECTO_IASGL Error desconocido
       exit 1
    fi   
@@ -433,8 +451,10 @@ else
    echo "" >> /var/Proyecto/ArchivoProyecto
    echo "*********************************************************************" >> /var/Proyecto/ArchivoProyecto
    date >> /var/Proyecto/ArchivoProyecto
-   echo "Argumento NO es directorio." >> /var/Proyecto/ArchivoProyecto
-   echo "Argumento NO es directorio."
+   echo "Error." >> /var/Proyecto/ArchivoProyecto
+   echo "Error."
+   echo "Razón: argumento NO es directorio." >> /var/Proyecto/ArchivoProyecto
+   echo "Razón: argumento NO es directorio."
    logger -p error -t PROYECTO_IASGL Falta Argumento válido
    exit 1
 fi
