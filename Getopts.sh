@@ -1,88 +1,60 @@
 #!/bin/bash
-
+#---------------------------------VERIFICACIONES DEL DIRECTORIO /var/--------------------------#
 ls /var/Proyecto 1>/dev/null 2>/dev/null
+#echo "*******"$?
 if [ ! $? == 0 ]; then #no existe esa carpeta
-   sudo mkdir /var/Proyecto 2>/dev/null
+   sudo mkdir /var/Proyecto 1>/dev/null 2>/dev/null
 else
+   #echo 'UNOOOOO'
    logger -p error -t PROYECTO_IASGL Imposible crear carpeta necesaria
-   exit 1
+   #exit 1
 fi
 
 ls /var/Proyecto/ArchivoProyecto 1>/dev/null 2>/dev/null
 if [ ! $? == 0 ]; then
    sudo touch /var/Proyecto/ArchivoProyecto 2>/dev/null
 else
+   #echo 'DOSSSSSSS'
    logger -p error -t PROYECTO_IASGL Imposible crear archivo necesario
-   exit 1
+   #exit 1
 fi
 
 #---------------------------------VERIFICACIONES DEL DIRECTORIO /etc/--------------------------#
 ls /etc/variables.sh 1>/dev/null 2>/dev/null
    if [ ! $? == 0 ]; then
-      echo "" >> /var/Proyecto/ArchivoProyecto
-      echo "*********************************************************************"  >> /var/Proyecto/ArchivoProyecto
-      date >> /var/Proyecto/ArchivoProyecto
-      echo "Error." | tee -a /var/Proyecto/ArchivoProyecto
-      echo "Razón: Su computadora no cumple con los requisitos mínimos para poder ejecutar este comando." | tee -a /var/Proyecto/ArchivoProyecto
-      echo "Lo que usted debe hacer es: Copiar el archivo variables.sh que se encuentra en el mismo directorio en el cual se encuentra el archivo que usted esta corriendo, con el siguiente comando: " | tee -a /var/Proyecto/ArchivoProyecto
-      echo "sudo cp -r / *Dirección en la cual se encuentra el archivo variables.sh*/ /etc/" | tee -a /var/Proyecto/ArchivoProyecto
+      echo "" | sudo tee -a /var/Proyecto/ArchivoProyecto 1>/dev/null
+      echo "*********************************************************************"  | sudo tee -a /var/Proyecto/ArchivoProyecto 1>/dev/null
+      date | echo | sudo tee -a /var/Proyecto/ArchivoProyecto 1>/dev/null
+      echo "Error." | sudo tee -a /var/Proyecto/ArchivoProyecto
+      echo "Razón: Su computadora no cumple con los requisitos mínimos para poder ejecutar este comando." | sudo tee -a /var/Proyecto/ArchivoProyecto
+      echo "Lo que usted debe hacer es: Copiar el archivo variables.sh suministrado junto al archivo que usted esta corriendo, con el siguiente comando: " | sudo tee -a /var/Proyecto/ArchivoProyecto
+      echo "sudo cp -i / *Dirección en la cual se encuentra el archivo variables.sh*/ /etc/" | sudo tee -a /var/Proyecto/ArchivoProyecto
       logger -p error -t PROYECTO_IASGL No se encontró el archivo /etc/variables.sh 
       exit 1
    fi
-AYUDA=`grep "^AYUDA" /etc/variables.sh | sed 's/AYUDA=\(.*\)/\1/g'` 2>/dev/null
-PORCENTAJE=`grep "^PORCENTAJE" /etc/variables.sh | sed 's/PORCENTAJE=\(.*\)/\1/g'`
-DPROFUNDIDAD=`grep "^DPROFUNDIDAD" /etc/variables.sh | sed 's/DPROFUNDIDAD=\(.*\)/\1/g'`
+AYUDA=`sudo grep "^AYUDA" /etc/variables.sh | sed 's/AYUDA=\(.*\)/\1/g'` 2>/dev/null
+PORCENTAJE=`sudo grep "^PORCENTAJE" /etc/variables.sh | sed 's/PORCENTAJE=\(.*\)/\1/g'`
+DPROFUNDIDAD=`sudo grep "^DPROFUNDIDAD" /etc/variables.sh | sed 's/DPROFUNDIDAD=\(.*\)/\1/g'`
 TMPDIR=
 
 function AYUDA(){
-	echo -e "\nScript Getopts\n\n Getopts es un script con la funcionalidad de mostrar la cantidad de archivos contenidos en un directorio clasificandolos\nsegun el tipo ya sea:\nimágenes, archivos de texto, comprimidos, librerías, documentos de texto, audio, video, archivos de sistema y otros.\n Además Getopts cuenta con un historial de ejecuciones del mismo, estas se encuentra en el directorio /var/Proyecto.\n y un archivo que contiene las variables de cambio ubicado en el directorio /etc/.\n
-Si se utliza Getopts por primera vez en una computadora se debe tener en cuenta dos aspectos antes de poder ejercutar este script:\n
-1) Se debe contar con PERMISOS para el directorio /var/ que es donde se almacenará un directorio que contendrá el historial de las ejecuciones del script
-\t--Cambiar permisos para el directorio /var/ (realizar desde root) --> chmod a+w /var/\n
-2) Tener PERMISOS para el directorio /etc/ aquí se alojará el archivo variables.sh que contiene las variables de cambio.
-\t--Cambiar permisos para el directorio /etc/ (realizar desde root) --> chmod a+w /etc/\n\n
-SINTAXIS:\n
-\t ./Getotps [OPCIONES] NombredelDirectorio
-El nombre del directorio debe ser ingresado como RUTA ABSOLUTA\n
-\t Entre la opciones permitidas:
-\t -d -- Indica que el proceso de clasificación se hará con la PROFUNDIDAD que esté por defecto en el archivo variables.sh ubicado en /etc/\n
-\t\tsi la variable DPROFUNDIDAD (variables.sh)= 1 el proceso se hará en el primer nivel, si DPROFUNDIDAD (variables.sh)=0 el proceso se\n
-\t\thará sin límite de profundidad. La opción -d no recibe ningún parámetro.\n\n
-\t -p1 --Muestra la cantidad de archivos clasificados de cada tipo en FORMATO DE PORCENTAJE. Estrictamente -p debe llevar como argumento el número 1.\n
-\t -h  --Descripción del Script, sintaxis y ayuda. Para su uso su SINTAXIS es la siguiente notar que -h no recibe ningun parámetro: ./Getopts -h \n
-\t la opción -h no se puede combinar\n\n 
-NOTA:\n
-las combinaciones de las ociones pueden ser las siguientes:\n
-\t ./Getopts -dp1 ../NombreDirectorio\n
-\t ./Getopts -p1d ../NmbreDirecotrio\n
-\t ./Getopts -d -p1 ../NombreDirectorio\n
-\t ./Getopts -h\n\n
-|----------------------------------------------------------------------------------------------------------------------------------------|\n
-\t\t\t\t\t\tMENSAJES DE ERROR:\n
-|----------------------------------------------------------------------------------------------------------------------------------------|\n
-\t Proceso abortado. Razón: es necesario un directorio --SOLUCIÓN: ingresar un nombre de directorio como argumento\n
-\t\t\t\t\t\t\t\t Ejemplo: ./Getopts /home/usuario/Descargas\n
-|----------------------------------------------------------------------------------------------------------------------------------------|\n
-\t Proceso abortado. Razón: opción inválida -[valor númerico] detectada. --SOLUCIÓN: no ingresar ningún parámetro con la opción -d\n
-\t\t\t\t\t\t\t\t Ejemplo: ./Getopts -d /home/usuario/Descargas\n
-|----------------------------------------------------------------------------------------------------------------------------------------|\n
-\tProceso abortado.Razón: sólo se admite -p1 --SOLUCIÓN: Estrictamente -p debe llevar como argumento el número 1\n
-\t\t\t\t\t\t\t\t Ejemplo: ./Getopts -p1 /home/usuario/Descargas\n
-|----------------------------------------------------------------------------------------------------------------------------------------|\n"
-
-
+   echo -e "\n--------------------------------------------------------------------------------------------------------------------------------------------------------------------\n\nSCRIPT GETOPTS:\n\tGetopts es un script con la funcionalidad de mostrar la cantidad de archivos regulares contenidos en un directorio dado, clasificándolos según sea el tipo\n\tdel archivo, ya sea: imágenes, archivos de texto, comprimidos, librerías, archivos de audio, video, archivos de sistema y otros. Por otra parte, Getopts\n\tcuenta con un historial de ejecuciones del mismo script, el cual se guarda en un archivo llamado ArchivoProyecto.txt. Dicho archivo se encuentra en el\n\tdirectorio /var/Proyecto. Getopts también cuenta con un archivo que contiene las variables de configuración ubicado en el directorio /etc/, llamado\n\tvariables.sh.\n\n\tSi se utiliza Getopts por primera vez en una computadora se debe tener en cuenta aspectos muy importantes antes de ejecutar el script:\n\t    1) Copiar el archivo regular variables.sh (el cual se brinda junto con este script), al directorio /etc/ con el comando:\n\t       sudo cp -r /*Dirección en la cual se encuentra el archivo variables.sh*/ /etc/.\n\t    2) Es posible que se le pida digitar su contraseña, esto se hace para poder crear los directorios necesarios para el correcto funcionamiento del script.\n\nSINTAXIS:\n\t./Getopts [OPCIONES] RutaAbsolutaDelDirectorio\n\nOPCIONES:\n\t-d  --- Indica que el proceso de clasificación se hará con la PROFUNDIDAD igual a 1.\n\t\tSi la variable DPROFUNDIDAD (variables.sh)=1 el proceso se hará con una profundidad de búsqueda igual a 1, si DPROFUNDIDAD (variables.sh)=0 el proceso\n\t\tse hará sin límite de profundidad. La opción -d no recibe ningún parámetro.\n\n\t-p1 --- Muestra la cantidad de archivos clasificados por cada tipo en FORMATO DE PORCENTAJE. Estrictamente la opción -p debe llevar como argumento el número 1.\n\n\t-h  --- Descripción del Script, sintaxis y ayuda. Está opción no requiere de parámetros. La opción -h no se puede combinar.\n\nCOMBINACIONES DE OPCIONES:\n\t./Getopts -dp1 ../RutaDirectorio\n\t./Getopts -p1d ../RutaDirectorio\n\t./Getopts -d -p1 ../RutaDirectorio\n\t./Getopts -d ../RutaDirectorio\n\t./Getopts -p1 ../RutaDirectorio\n\t./Getopts -h\n\nMENSAJES DE ERROR:\n\t--Proceso abortado. Razón: es necesario un directorio --SOLUCIÓN: digitar una ruta válida de directorio como argumento.\n\t\tEjemplo: ./Getopts /home/usuario/Descargas\n\n\t--Proceso abortado. Razón: opción inválida -[valor numérico] detectado. --SOLUCIÓN: no ingresar ningún parámetro con la opción -d.\n\t\tEjemplo: ./Getopts -d /home/usuario/Descargas\n\n\t--Proceso abortado. Razón: sólo se admite -p1 --SOLUCIÓN: Estrictamente -p debe llevar como argumento el número 1.\n\t\tEjemplo: ./Getopts -p1 /home/usuario/Descargas\n\n--------------------------------------------------------------------------------------------------------------------------------------------------------------------\n"
+   echo "" | sudo tee -a /var/Proyecto/ArchivoProyecto 1>/dev/null
+   echo "*********************************************************************"  | sudo tee -a /var/Proyecto/ArchivoProyecto 1>/dev/null
+   echo "" | sudo tee -a /var/Proyecto/ArchivoProyecto 1>/dev/null
+   echo "Se mostró la ayuda con el comando -h" | sudo tee -a /var/Proyecto/ArchivoProyecto 1>/dev/null
 }
 
 function PROCESO(){
    ArchivosReglaresT_A=`find ${TMPDIR} -maxdepth 1 -type f 2>/dev/null`
 
    if [ ! $? == 0 ]; then
-      echo "" >> /var/Proyecto/ArchivoProyecto
-      echo "*********************************************************************" >> /var/Proyecto/ArchivoProyecto
-      date >> /var/Proyecto/ArchivoProyecto
-      echo "Error." | tee -a /var/Proyecto/ArchivoProyecto
-      echo "Razón: Su computadora no cumple con los requisitos mínimos para poder ejecutar este comando." | tee -a /var/Proyecto/ArchivoProyecto
-      echo "No tiene permisos de ingreso a algún directorio, para poder contar sus archivos." | tee -a /var/Proyecto/ArchivoProyecto
+      echo "" | sudo tee -a /var/Proyecto/ArchivoProyecto 1>/dev/null
+      echo "*********************************************************************"  | sudo tee -a /var/Proyecto/ArchivoProyecto 1>/dev/null
+      date | echo | sudo tee -a /var/Proyecto/ArchivoProyecto 1>/dev/null
+      echo "Error." | sudo tee -a /var/Proyecto/ArchivoProyecto
+      echo "Razón: Su computadora no cumple con los requisitos mínimos para poder ejecutar este comando." | sudo tee -a /var/Proyecto/ArchivoProyecto
+      echo "No tiene permisos de ingreso a algún directorio, para poder contar sus archivos." | sudo tee -a /var/Proyecto/ArchivoProyecto
       logger -p error -t PROYECTO_IASGL No tiene permisos de ingreso a algún directorio, para poder contar sus archivos
       exit 1
    fi
@@ -122,12 +94,12 @@ function PROCESO_RECURSIVO(){
    ArchivosReglaresT_A=`find ${TMPDIR} -type f 2>/dev/null`
    
    if [ ! $? == 0 ]; then
-      echo "" >> /var/Proyecto/ArchivoProyecto
-      echo "*********************************************************************" >> /var/Proyecto/ArchivoProyecto
-      date >> /var/Proyecto/ArchivoProyecto
-      echo "Error." | tee -a /var/Proyecto/ArchivoProyecto
-      echo "Razón: Su computadora no cumple con los requisitos mínimos para poder ejecutar este comando." | tee -a /var/Proyecto/ArchivoProyecto
-      echo "No tiene permisos de ingreso a algún directorio, para poder contar sus archivos." | tee -a /var/Proyecto/ArchivoProyecto
+      echo "" | sudo tee -a /var/Proyecto/ArchivoProyecto 1>/dev/null
+      echo "*********************************************************************"  | sudo tee -a /var/Proyecto/ArchivoProyecto 1>/dev/null
+      date | echo | sudo tee -a /var/Proyecto/ArchivoProyecto 1>/dev/null
+      echo "Error." | sudo tee -a /var/Proyecto/ArchivoProyecto
+      echo "Razón: Su computadora no cumple con los requisitos mínimos para poder ejecutar este comando." | sudo tee -a /var/Proyecto/ArchivoProyecto
+      echo "No tiene permisos de ingreso a algún directorio, para poder contar sus archivos." | sudo tee -a /var/Proyecto/ArchivoProyecto
       logger -p error -t PROYECTO_IASGL No tiene permisos de ingreso a algún directorio, para poder contar sus archivos
       exit 1
    fi
@@ -165,108 +137,112 @@ function PROCESO_RECURSIVO(){
 function NORMAL(){
    PROCESO
    if [ "$suma" == 0 ]; then
-      echo "" >> /var/Proyecto/ArchivoProyecto
-      echo "*********************************************************************" >> /var/Proyecto/ArchivoProyecto
-      date >> /var/Proyecto/ArchivoProyecto
-      echo "El directorio que usted ingreso es: "$TMPDIR | tee -a /var/Proyecto/ArchivoProyecto
-      echo "El directorio que usted ingreso no contiene archivos regulares." | tee -a /var/Proyecto/ArchivoProyecto
+      echo "" | sudo tee -a /var/Proyecto/ArchivoProyecto 1>/dev/null
+      echo "*********************************************************************"  | sudo tee -a /var/Proyecto/ArchivoProyecto 1>/dev/null
+      date | echo | sudo tee -a /var/Proyecto/ArchivoProyecto 1>/dev/null
+      echo "El directorio que usted ingreso es: "$TMPDIR | sudo tee -a /var/Proyecto/ArchivoProyecto
+      echo "El directorio que usted ingreso no contiene archivos regulares." | sudo tee -a /var/Proyecto/ArchivoProyecto
    else
-      echo "" >> /var/Proyecto/ArchivoProyecto
-      echo "*********************************************************************" >> /var/Proyecto/ArchivoProyecto
-      date >> /var/Proyecto/ArchivoProyecto
-      echo "El directorio que usted ingreso es: "$TMPDIR | tee -a /var/Proyecto/ArchivoProyecto
-      echo "La cantidad total de archivos regulares es: "${ArchivosReglaresT} | tee -a /var/Proyecto/ArchivoProyecto
-      echo "" | tee -a /var/Proyecto/ArchivoProyecto
-      echo "IMAGENES: "$sumaImagenes | tee -a /var/Proyecto/ArchivoProyecto
-      echo "DOCUMENTOS: "$sumaDocumentos | tee -a /var/Proyecto/ArchivoProyecto
-      echo "AUDIO: "$sumaAudio | tee -a /var/Proyecto/ArchivoProyecto
-      echo "VIDEO: "$sumaVideo | tee -a /var/Proyecto/ArchivoProyecto
-      echo "COMPRIMIDOS: "$sumaComprimidos | tee -a /var/Proyecto/ArchivoProyecto
-      echo "EJECUTABLES: "$sumaEjecutables | tee -a /var/Proyecto/ArchivoProyecto
-      echo "LIBRERIAS: "$sumaCoFuLibrerias | tee -a /var/Proyecto/ArchivoProyecto
-      echo "ARCHIVOS DEL SISTEMA: "$sumaArchSistema | tee -a /var/Proyecto/ArchivoProyecto
-      echo "OTROS: "${otros} | tee -a /var/Proyecto/ArchivoProyecto
+      echo "" | sudo tee -a /var/Proyecto/ArchivoProyecto
+      echo "*********************************************************************"  | sudo tee -a /var/Proyecto/ArchivoProyecto 1>/dev/null
+      date | echo | sudo tee -a /var/Proyecto/ArchivoProyecto 1>/dev/null
+      echo "El directorio que usted ingreso es: "$TMPDIR | sudo tee -a /var/Proyecto/ArchivoProyecto
+      echo "La cantidad total de archivos regulares es: "${ArchivosReglaresT} | sudo tee -a /var/Proyecto/ArchivoProyecto
+      echo "" | sudo tee -a /var/Proyecto/ArchivoProyecto
+      echo "IMAGENES: "$sumaImagenes | sudo tee -a /var/Proyecto/ArchivoProyecto
+      echo "DOCUMENTOS: "$sumaDocumentos | sudo tee -a /var/Proyecto/ArchivoProyecto
+      echo "AUDIO: "$sumaAudio | sudo tee -a /var/Proyecto/ArchivoProyecto
+      echo "VIDEO: "$sumaVideo | sudo tee -a /var/Proyecto/ArchivoProyecto
+      echo "COMPRIMIDOS: "$sumaComprimidos | sudo tee -a /var/Proyecto/ArchivoProyecto
+      echo "EJECUTABLES: "$sumaEjecutables | sudo tee -a /var/Proyecto/ArchivoProyecto
+      echo "LIBRERIAS: "$sumaCoFuLibrerias | sudo tee -a /var/Proyecto/ArchivoProyecto
+      echo "ARCHIVOS DEL SISTEMA: "$sumaArchSistema | sudo tee -a /var/Proyecto/ArchivoProyecto
+      echo "OTROS: "${otros} | sudo tee -a /var/Proyecto/ArchivoProyecto
+      echo ""
    fi
 }
 
 function PORCENTAJE(){
    PROCESO
    if [ "$suma" == 0 ]; then
-      echo "" >> /var/Proyecto/ArchivoProyecto
-      echo "*********************************************************************" >> /var/Proyecto/ArchivoProyecto
-      date >> /var/Proyecto/ArchivoProyecto
-      echo "El directorio que usted ingreso es: "$TMPDIR | tee -a /var/Proyecto/ArchivoProyecto
-      echo "El directorio que usted ingreso no contiene archivos regulares." | tee -a /var/Proyecto/ArchivoProyecto
+      echo "" | sudo tee -a /var/Proyecto/ArchivoProyecto 1>/dev/null
+      echo "*********************************************************************"  | sudo tee -a /var/Proyecto/ArchivoProyecto 1>/dev/null
+      date | echo | sudo tee -a /var/Proyecto/ArchivoProyecto 1>/dev/null
+      echo "El directorio que usted ingreso es: "$TMPDIR | sudo tee -a /var/Proyecto/ArchivoProyecto
+      echo "El directorio que usted ingreso no contiene archivos regulares." | sudo tee -a /var/Proyecto/ArchivoProyecto
    else
-      echo "" >> /var/Proyecto/ArchivoProyecto
-      echo "*********************************************************************" >> /var/Proyecto/ArchivoProyecto
-      date >> /var/Proyecto/ArchivoProyecto
-      echo "El directorio que usted ingreso es: "$TMPDIR | tee -a /var/Proyecto/ArchivoProyecto
-      echo "La cantidad total de archivos regulares es: "${ArchivosReglaresT} | tee -a /var/Proyecto/ArchivoProyecto
-      echo "" | tee -a /var/Proyecto/ArchivoProyecto
-      echo "IMAGENES: "$((100*$sumaImagenes/$ArchivosReglaresT))"%" | tee -a /var/Proyecto/ArchivoProyecto
-      echo "DOCUMENTOS: "$((100*$sumaDocumentos/$ArchivosReglaresT))"%" | tee -a /var/Proyecto/ArchivoProyecto
-      echo "AUDIO: "$((100*$sumaAudio/$ArchivosReglaresT))"%" | tee -a /var/Proyecto/ArchivoProyecto
-      echo "VIDEO: "$((100*$sumaVideo/$ArchivosReglaresT))"%" | tee -a /var/Proyecto/ArchivoProyecto
-      echo "COMPRIMIDOS: "$((100*$sumaComprimidos/$ArchivosReglaresT))"%" | tee -a /var/Proyecto/ArchivoProyecto
-      echo "EJECUTABLES: "$((100*$sumaEjecutables/$ArchivosReglaresT))"%" | tee -a /var/Proyecto/ArchivoProyecto
-      echo "LIBRERIAS: "$((100*$sumaCoFuLibrerias/$ArchivosReglaresT))"%" | tee -a /var/Proyecto/ArchivoProyecto
-      echo "ARCHIVOS DEL SISTEMA: "$((100*$sumaArchSistema/$ArchivosReglaresT))"%" | tee -a /var/Proyecto/ArchivoProyecto
-      echo "OTROS: "$((100*$otros/$ArchivosReglaresT))"%" | tee -a /var/Proyecto/ArchivoProyecto
+      echo "" | sudo tee -a /var/Proyecto/ArchivoProyecto
+      echo "*********************************************************************"  | sudo tee -a /var/Proyecto/ArchivoProyecto 1>/dev/null
+      date | echo | sudo tee -a /var/Proyecto/ArchivoProyecto 1>/dev/null
+      echo "El directorio que usted ingreso es: "$TMPDIR | sudo tee -a /var/Proyecto/ArchivoProyecto
+      echo "La cantidad total de archivos regulares es: "${ArchivosReglaresT} | sudo tee -a /var/Proyecto/ArchivoProyecto
+      echo "" | sudo tee -a /var/Proyecto/ArchivoProyecto
+      echo "IMAGENES: "$((100*$sumaImagenes/$ArchivosReglaresT))"%" | sudo tee -a /var/Proyecto/ArchivoProyecto
+      echo "DOCUMENTOS: "$((100*$sumaDocumentos/$ArchivosReglaresT))"%" | sudo tee -a /var/Proyecto/ArchivoProyecto
+      echo "AUDIO: "$((100*$sumaAudio/$ArchivosReglaresT))"%" | sudo tee -a /var/Proyecto/ArchivoProyecto
+      echo "VIDEO: "$((100*$sumaVideo/$ArchivosReglaresT))"%" | sudo tee -a /var/Proyecto/ArchivoProyecto
+      echo "COMPRIMIDOS: "$((100*$sumaComprimidos/$ArchivosReglaresT))"%" | sudo tee -a /var/Proyecto/ArchivoProyecto
+      echo "EJECUTABLES: "$((100*$sumaEjecutables/$ArchivosReglaresT))"%" | sudo tee -a /var/Proyecto/ArchivoProyecto
+      echo "LIBRERIAS: "$((100*$sumaCoFuLibrerias/$ArchivosReglaresT))"%" | sudo tee -a /var/Proyecto/ArchivoProyecto
+      echo "ARCHIVOS DEL SISTEMA: "$((100*$sumaArchSistema/$ArchivosReglaresT))"%" | sudo tee -a /var/Proyecto/ArchivoProyecto
+      echo "OTROS: "$((100*$otros/$ArchivosReglaresT))"%" | sudo tee -a /var/Proyecto/ArchivoProyecto
+      echo ""
    fi
 }
 
 function RECURSIVO(){
    PROCESO_RECURSIVO
    if [ "$suma" == 0 ]; then
-      echo "" >> /var/Proyecto/ArchivoProyecto
-      echo "*********************************************************************" >> /var/Proyecto/ArchivoProyecto
-      date >> /var/Proyecto/ArchivoProyecto
-      echo "El directorio que usted ingreso es: "$TMPDIR | tee -a /var/Proyecto/ArchivoProyecto
-      echo "El directorio que usted ingreso no contiene archivos regulares." | tee -a /var/Proyecto/ArchivoProyecto
+      echo "" | sudo tee -a /var/Proyecto/ArchivoProyecto 1>/dev/null
+      echo "*********************************************************************"  | sudo tee -a /var/Proyecto/ArchivoProyecto 1>/dev/null
+      date | echo | sudo tee -a /var/Proyecto/ArchivoProyecto 1>/dev/null
+      echo "El directorio que usted ingreso es: "$TMPDIR | sudo tee -a /var/Proyecto/ArchivoProyecto
+      echo "El directorio que usted ingreso no contiene archivos regulares." | sudo tee -a /var/Proyecto/ArchivoProyecto
    else
-      echo "" >> /var/Proyecto/ArchivoProyecto
-      echo "*********************************************************************" >> /var/Proyecto/ArchivoProyecto
-      date >> /var/Proyecto/ArchivoProyecto
-      echo "El directorio que usted ingreso es: "$TMPDIR | tee -a /var/Proyecto/ArchivoProyecto
-      echo "La cantidad total de archivos regulares es: "${ArchivosReglaresT} | tee -a /var/Proyecto/ArchivoProyecto
-      echo "" | tee -a /var/Proyecto/ArchivoProyecto
-      echo "IMAGENES: "$sumaImagenes | tee -a /var/Proyecto/ArchivoProyecto
-      echo "DOCUMENTOS: "$sumaDocumentos | tee -a /var/Proyecto/ArchivoProyecto
-      echo "AUDIO: "$sumaAudio | tee -a /var/Proyecto/ArchivoProyecto
-      echo "VIDEO: "$sumaVideo | tee -a /var/Proyecto/ArchivoProyecto
-      echo "COMPRIMIDOS: "$sumaComprimidos | tee -a /var/Proyecto/ArchivoProyecto
-      echo "EJECUTABLES: "$sumaEjecutables | tee -a /var/Proyecto/ArchivoProyecto
-      echo "LIBRERIAS: "$sumaCoFuLibrerias | tee -a /var/Proyecto/ArchivoProyecto
-      echo "ARCHIVOS DEL SISTEMA: "$sumaArchSistema | tee -a /var/Proyecto/ArchivoProyecto
-      echo "OTROS: "${otros} | tee -a /var/Proyecto/ArchivoProyecto
+      echo "" | sudo tee -a /var/Proyecto/ArchivoProyecto
+      echo "*********************************************************************"  | sudo tee -a /var/Proyecto/ArchivoProyecto 1>/dev/null
+      date | echo | sudo tee -a /var/Proyecto/ArchivoProyecto 1>/dev/null
+      echo "El directorio que usted ingreso es: "$TMPDIR | sudo tee -a /var/Proyecto/ArchivoProyecto
+      echo "La cantidad total de archivos regulares es: "${ArchivosReglaresT} | sudo tee -a /var/Proyecto/ArchivoProyecto
+      echo "" | sudo tee -a /var/Proyecto/ArchivoProyecto
+      echo "IMAGENES: "$sumaImagenes | sudo tee -a /var/Proyecto/ArchivoProyecto
+      echo "DOCUMENTOS: "$sumaDocumentos | sudo tee -a /var/Proyecto/ArchivoProyecto
+      echo "AUDIO: "$sumaAudio | sudo tee -a /var/Proyecto/ArchivoProyecto
+      echo "VIDEO: "$sumaVideo | sudo tee -a /var/Proyecto/ArchivoProyecto
+      echo "COMPRIMIDOS: "$sumaComprimidos | sudo tee -a /var/Proyecto/ArchivoProyecto
+      echo "EJECUTABLES: "$sumaEjecutables | sudo tee -a /var/Proyecto/ArchivoProyecto
+      echo "LIBRERIAS: "$sumaCoFuLibrerias | sudo tee -a /var/Proyecto/ArchivoProyecto
+      echo "ARCHIVOS DEL SISTEMA: "$sumaArchSistema | sudo tee -a /var/Proyecto/ArchivoProyecto
+      echo "OTROS: "${otros} | sudo tee -a /var/Proyecto/ArchivoProyecto
+      echo ""
    fi
 }
 
 function PORCENTAJE_RECURSIVO(){
    PROCESO_RECURSIVO
    if [ "$suma" == 0 ]; then
-      echo "" >> /var/Proyecto/ArchivoProyecto
-      echo "*********************************************************************" >> /var/Proyecto/ArchivoProyecto
-      date >> /var/Proyecto/ArchivoProyecto
-      echo "El directorio que usted ingreso es: "$TMPDIR | tee -a /var/Proyecto/ArchivoProyecto
-      echo "El directorio que usted ingreso no contiene archivos regulares." | tee -a /var/Proyecto/ArchivoProyecto
+      echo "" | sudo tee -a /var/Proyecto/ArchivoProyecto 1>/dev/null
+      echo "*********************************************************************"  | sudo tee -a /var/Proyecto/ArchivoProyecto 1>/dev/null
+      date | echo | sudo tee -a /var/Proyecto/ArchivoProyecto 1>/dev/null
+      echo "El directorio que usted ingreso es: "$TMPDIR | sudo tee -a /var/Proyecto/ArchivoProyecto
+      echo "El directorio que usted ingreso no contiene archivos regulares." | sudo tee -a /var/Proyecto/ArchivoProyecto
    else
-      echo "" >> /var/Proyecto/ArchivoProyecto
-      echo "*********************************************************************" >> /var/Proyecto/ArchivoProyecto
-      date >> /var/Proyecto/ArchivoProyecto
-      echo "El directorio que usted ingreso es: "$TMPDIR | tee -a /var/Proyecto/ArchivoProyecto
-      echo "La cantidad total de archivos regulares es: "${ArchivosReglaresT} | tee -a /var/Proyecto/ArchivoProyecto
-      echo "" | tee -a /var/Proyecto/ArchivoProyecto
-      echo "IMAGENES: "$((100*$sumaImagenes/$ArchivosReglaresT))"%" | tee -a /var/Proyecto/ArchivoProyecto
-      echo "DOCUMENTOS: "$((100*$sumaDocumentos/$ArchivosReglaresT))"%" | tee -a /var/Proyecto/ArchivoProyecto
-      echo "AUDIO: "$((100*$sumaAudio/$ArchivosReglaresT))"%" | tee -a /var/Proyecto/ArchivoProyecto
-      echo "VIDEO: "$((100*$sumaVideo/$ArchivosReglaresT))"%" | tee -a /var/Proyecto/ArchivoProyecto
-      echo "COMPRIMIDOS: "$((100*$sumaComprimidos/$ArchivosReglaresT))"%" | tee -a /var/Proyecto/ArchivoProyecto
-      echo "EJECUTABLES: "$((100*$sumaEjecutables/$ArchivosReglaresT))"%" | tee -a /var/Proyecto/ArchivoProyecto
-      echo "LIBRERIAS: "$((100*$sumaCoFuLibrerias/$ArchivosReglaresT))"%" | tee -a /var/Proyecto/ArchivoProyecto
-      echo "ARCHIVOS DEL SISTEMA: "$((100*$sumaArchSistema/$ArchivosReglaresT))"%" | tee -a /var/Proyecto/ArchivoProyecto
-      echo "OTROS: "$((100*$otros/$ArchivosReglaresT))"%" | tee -a /var/Proyecto/ArchivoProyecto
+      echo "" | sudo tee -a /var/Proyecto/ArchivoProyecto
+      echo "*********************************************************************"  | sudo tee -a /var/Proyecto/ArchivoProyecto 1>/dev/null
+      date | echo | sudo tee -a /var/Proyecto/ArchivoProyecto 1>/dev/null
+      echo "El directorio que usted ingreso es: "$TMPDIR | sudo tee -a /var/Proyecto/ArchivoProyecto
+      echo "La cantidad total de archivos regulares es: "${ArchivosReglaresT} | sudo tee -a /var/Proyecto/ArchivoProyecto
+      echo "" | sudo tee -a /var/Proyecto/ArchivoProyecto
+      echo "IMAGENES: "$((100*$sumaImagenes/$ArchivosReglaresT))"%" | sudo tee -a /var/Proyecto/ArchivoProyecto
+      echo "DOCUMENTOS: "$((100*$sumaDocumentos/$ArchivosReglaresT))"%" | sudo tee -a /var/Proyecto/ArchivoProyecto
+      echo "AUDIO: "$((100*$sumaAudio/$ArchivosReglaresT))"%" | sudo tee -a /var/Proyecto/ArchivoProyecto
+      echo "VIDEO: "$((100*$sumaVideo/$ArchivosReglaresT))"%" | sudo tee -a /var/Proyecto/ArchivoProyecto
+      echo "COMPRIMIDOS: "$((100*$sumaComprimidos/$ArchivosReglaresT))"%" | sudo tee -a /var/Proyecto/ArchivoProyecto
+      echo "EJECUTABLES: "$((100*$sumaEjecutables/$ArchivosReglaresT))"%" | sudo tee -a /var/Proyecto/ArchivoProyecto
+      echo "LIBRERIAS: "$((100*$sumaCoFuLibrerias/$ArchivosReglaresT))"%" | sudo tee -a /var/Proyecto/ArchivoProyecto
+      echo "ARCHIVOS DEL SISTEMA: "$((100*$sumaArchSistema/$ArchivosReglaresT))"%" | sudo tee -a /var/Proyecto/ArchivoProyecto
+      echo "OTROS: "$((100*$otros/$ArchivosReglaresT))"%" | sudo tee -a /var/Proyecto/ArchivoProyecto
+      echo ""
    fi
 }
 
@@ -279,11 +255,11 @@ function PORCENTAJE_RECURSIVO(){
          h)   if [ $# == 1 ]; then
                  AYUDA=1
               else
-                 echo "" >> /var/Proyecto/ArchivoProyecto
-                 echo "*********************************************************************" >> /var/Proyecto/ArchivoProyecto
-                 date >> /var/Proyecto/ArchivoProyecto
-                 echo "Proceso abortado." | tee -a /var/Proyecto/ArchivoProyecto
-                 echo "Razón: opción -h no se puede combinar." | tee -a /var/Proyecto/ArchivoProyecto
+                 echo "" | sudo tee -a /var/Proyecto/ArchivoProyecto 1>/dev/null
+                 echo "*********************************************************************"  | sudo tee -a /var/Proyecto/ArchivoProyecto 1>/dev/null
+                 date | echo | sudo tee -a /var/Proyecto/ArchivoProyecto 1>/dev/null 
+                 echo "Proceso abortado." | sudo tee -a /var/Proyecto/ArchivoProyecto
+                 echo "Razón: opción -h no se puede combinar." | sudo tee -a /var/Proyecto/ArchivoProyecto
                  logger -p auth.error -t PROYECTO_IASGL Combinación inválida
                  exit 1
               fi ;;
@@ -291,11 +267,11 @@ function PORCENTAJE_RECURSIVO(){
               if [ "$NUMERO" == 1 ]; then
                  PORCENTAJE=$NUMERO
               else
-                 echo "" >> /var/Proyecto/ArchivoProyecto
-                 echo "*********************************************************************" >> /var/Proyecto/ArchivoProyecto
-                 date  >> /var/Proyecto/ArchivoProyecto
-                 echo "Proceso abortado." | tee -a /var/Proyecto/ArchivoProyecto
-                 echo "Razón: sólo se admite -p1 (Seleccione -h para ver la ayuda)." | tee -a /var/Proyecto/ArchivoProyecto
+                 echo "" | sudo tee -a /var/Proyecto/ArchivoProyecto 1>/dev/null
+                 echo "*********************************************************************"  | sudo tee -a /var/Proyecto/ArchivoProyecto 1>/dev/null
+                 date | echo | sudo tee -a /var/Proyecto/ArchivoProyecto 1>/dev/null
+                 echo "Proceso abortado." | sudo tee -a /var/Proyecto/ArchivoProyecto
+                 echo "Razón: sólo se admite -p1 (Seleccione -h para ver la ayuda)." | sudo tee -a /var/Proyecto/ArchivoProyecto
                  logger -p auth.error -t PROYECTO_IASGL Argumento inválido
                  exit 1
               fi
@@ -304,29 +280,29 @@ function PORCENTAJE_RECURSIVO(){
               if [ "$OPCION" == "d" ]; then
                  DPROFUNDIDAD=0
               fi ;;
-         :)   echo "" >> /var/Proyecto/ArchivoProyecto
-              echo "*********************************************************************" >> /var/Proyecto/ArchivoProyecto
-              date >> /var/Proyecto/ArchivoProyecto
-              echo "Proceso abortado." | tee -a /var/Proyecto/ArchivoProyecto
-              echo "Razón: debe proveer un argumento a la opción: -p1" | tee -a /var/Proyecto/ArchivoProyecto
+         :)   echo "" | sudo tee -a /var/Proyecto/ArchivoProyecto 1>/dev/null
+              echo "*********************************************************************"  | sudo tee -a /var/Proyecto/ArchivoProyecto 1>/dev/null
+              date | echo | sudo tee -a /var/Proyecto/ArchivoProyecto 1>/dev/null
+              echo "Proceso abortado." | sudo tee -a /var/Proyecto/ArchivoProyecto
+              echo "Razón: debe proveer un argumento a la opción: -p1" | sudo tee -a /var/Proyecto/ArchivoProyecto
               logger -p auth.error -t PROYECTO_IASGL Sintaxis argumentos inválida
               exit 1 ;;
-         \?)  echo "" >> /var/Proyecto/ArchivoProyecto
-              echo "*********************************************************************" >> /var/Proyecto/ArchivoProyecto
-              date >> /var/Proyecto/ArchivoProyecto
-              echo "Proceso abortado." | tee -a /var/Proyecto/ArchivoProyecto
-              echo "Razón: opción inválida -$OPTARG detectada." | tee -a /var/Proyecto/ArchivoProyecto
+         \?)  echo "" | sudo tee -a /var/Proyecto/ArchivoProyecto 1>/dev/null
+              echo "*********************************************************************"  | sudo tee -a /var/Proyecto/ArchivoProyecto 1>/dev/null
+              date | echo | sudo tee -a /var/Proyecto/ArchivoProyecto 1>/dev/null
+              echo "Proceso abortado." | sudo tee -a /var/Proyecto/ArchivoProyecto
+              echo "Razón: opción inválida -$OPTARG detectada." | sudo tee -a /var/Proyecto/ArchivoProyecto
               logger -p auth.error -t PROYECTO_IASGL Opción inválida
               exit 1 ;;
       esac
    done
 
 if [ $# == 0 ]; then
-   echo "" >> /var/Proyecto/ArchivoProyecto
-   echo "*********************************************************************" >> /var/Proyecto/ArchivoProyecto
-   date >> /var/Proyecto/ArchivoProyecto
-   echo "Proceso abortado." | tee -a /var/Proyecto/ArchivoProyecto
-   echo "Razón: es necesario un directorio (Seleccione -h para ver la ayuda)." | tee -a /var/Proyecto/ArchivoProyecto
+   echo "" | sudo tee -a /var/Proyecto/ArchivoProyecto 1>/dev/null
+   echo "*********************************************************************"  | sudo tee -a /var/Proyecto/ArchivoProyecto 1>/dev/null
+   date | echo | sudo tee -a /var/Proyecto/ArchivoProyecto 1>/dev/null
+   echo "Proceso abortado." | sudo tee -a /var/Proyecto/ArchivoProyecto
+   echo "Razón: es necesario un directorio (Seleccione -h para ver la ayuda)." | sudo tee -a /var/Proyecto/ArchivoProyecto
    logger -p auth.error -t PROYECTO_IASGL Falta directorio
    exit 1
 elif [ $# == 1 ]; then
@@ -352,11 +328,11 @@ elif [ $# == 1 ]; then
 
       exit 0     
    else
-      echo "" >> /var/Proyecto/ArchivoProyecto
-      echo "*********************************************************************" >> /var/Proyecto/ArchivoProyecto
-      date >> /var/Proyecto/ArchivoProyecto
-      echo "Proceso abortado." | tee -a /var/Proyecto/ArchivoProyecto
-      echo "Razón: argumento NO es directorio." | tee -a /var/Proyecto/ArchivoProyecto
+      echo "" | sudo tee -a /var/Proyecto/ArchivoProyecto 1>/dev/null
+      echo "*********************************************************************"  | sudo tee -a /var/Proyecto/ArchivoProyecto 1>/dev/null
+      date | echo | sudo tee -a /var/Proyecto/ArchivoProyecto 1>/dev/null
+      echo "Proceso abortado." | sudo tee -a /var/Proyecto/ArchivoProyecto
+      echo "Razón: argumento NO es directorio." | sudo tee -a /var/Proyecto/ArchivoProyecto
       logger -p auth.error -t PROYECTO_IASGL Falta Argumento válido
       exit 1
    fi      
@@ -367,11 +343,11 @@ elif [ $# == 3 ]; then
    TMPDIR=$3
 
 else
-   echo "" >> /var/Proyecto/ArchivoProyecto
-   echo "*********************************************************************" >> /var/Proyecto/ArchivoProyecto
-   date >> /var/Proyecto/ArchivoProyecto
-   echo "Proceso abortado." | tee -a /var/Proyecto/ArchivoProyecto
-   echo "Razón: cantidad argumentos inválida." | tee -a /var/Proyecto/ArchivoProyecto
+   echo "" | sudo tee -a /var/Proyecto/ArchivoProyecto 1>/dev/null
+   echo "*********************************************************************"  | sudo tee -a /var/Proyecto/ArchivoProyecto 1>/dev/null
+   date | echo | sudo tee -a /var/Proyecto/ArchivoProyecto 1>/dev/null
+   echo "Proceso abortado." | sudo tee -a /var/Proyecto/ArchivoProyecto
+   echo "Razón: cantidad argumentos inválida." | sudo tee -a /var/Proyecto/ArchivoProyecto
    logger -p auth.error -t PROYECTO_IASGL Cantidad argumentos inválida
    exit 1
 fi
@@ -385,20 +361,20 @@ if [ -d "$TMPDIR" ]; then
    elif [ "$DPROFUNDIDAD" == 0 ]; then
       NORMAL
    else
-      echo "" >> /var/Proyecto/ArchivoProyecto
-      echo "*********************************************************************" >> /var/Proyecto/ArchivoProyecto
-      date  >> /var/Proyecto/ArchivoProyecto
-      echo "Error." | tee -a /var/Proyecto/ArchivoProyecto
-      echo "Razón: error encontrado en archivo de configuración." | tee -a /var/Proyecto/ArchivoProyecto
+      echo "" | sudo tee -a /var/Proyecto/ArchivoProyecto 1>/dev/null
+      echo "*********************************************************************"  | sudo tee -a /var/Proyecto/ArchivoProyecto 1>/dev/null
+      date | echo | sudo tee -a /var/Proyecto/ArchivoProyecto 1>/dev/null
+      echo "Error." | sudo tee -a /var/Proyecto/ArchivoProyecto
+      echo "Razón: error encontrado en archivo de configuración." | sudo tee -a /var/Proyecto/ArchivoProyecto
       logger -p error -t PROYECTO_IASGL Error desconocido
       exit 1
    fi   
 else
-   echo "" >> /var/Proyecto/ArchivoProyecto
-   echo "*********************************************************************" >> /var/Proyecto/ArchivoProyecto
-   date >> /var/Proyecto/ArchivoProyecto
-   echo "Error." | tee -a /var/Proyecto/ArchivoProyecto
-   echo "Razón: argumento NO es directorio." | tee -a /var/Proyecto/ArchivoProyecto
+   echo "" | sudo tee -a /var/Proyecto/ArchivoProyecto 1>/dev/null
+   echo "*********************************************************************"  | sudo tee -a /var/Proyecto/ArchivoProyecto 1>/dev/null
+   date | echo | sudo tee -a /var/Proyecto/ArchivoProyecto 1>/dev/null
+   echo "Error." | sudo tee -a /var/Proyecto/ArchivoProyecto
+   echo "Razón: argumento NO es directorio." | sudo tee -a /var/Proyecto/ArchivoProyecto
    logger -p error -t PROYECTO_IASGL Falta Argumento válido
    exit 1
 fi
