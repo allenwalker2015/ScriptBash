@@ -35,8 +35,42 @@ DPROFUNDIDAD=`grep "^DPROFUNDIDAD" /etc/variables.sh | sed 's/DPROFUNDIDAD=\(.*\
 TMPDIR=
 
 function AYUDA(){
-   echo "*Mostrar sólo ayuda*"
-   #---leer archivo de ayuda---
+	echo -e "\nScript Getopts\n\n Getopts es un script con la funcionalidad de mostrar la cantidad de archivos contenidos en un directorio clasificandolos\nsegun el tipo ya sea:\nimágenes, archivos de texto, comprimidos, librerías, documentos de texto, audio, video, archivos de sistema y otros.\n Además Getopts cuenta con un historial de ejecuciones del mismo, estas se encuentra en el directorio /var/Proyecto.\n y un archivo que contiene las variables de cambio ubicado en el directorio /etc/.\n
+Si se utliza Getopts por primera vez en una computadora se debe tener en cuenta dos aspectos antes de poder ejercutar este script:\n
+1) Se debe contar con PERMISOS para el directorio /var/ que es donde se almacenará un directorio que contendrá el historial de las ejecuciones del script
+\t--Cambiar permisos para el directorio /var/ (realizar desde root) --> chmod a+w /var/\n
+2) Tener PERMISOS para el directorio /etc/ aquí se alojará el archivo variables.sh que contiene las variables de cambio.
+\t--Cambiar permisos para el directorio /etc/ (realizar desde root) --> chmod a+w /etc/\n\n
+SINTAXIS:\n
+\t ./Getotps [OPCIONES] NombredelDirectorio
+El nombre del directorio debe ser ingresado como RUTA ABSOLUTA\n
+\t Entre la opciones permitidas:
+\t -d -- Indica que el proceso de clasificación se hará con la PROFUNDIDAD que esté por defecto en el archivo variables.sh ubicado en /etc/\n
+\t\tsi la variable DPROFUNDIDAD (variables.sh)= 1 el proceso se hará en el primer nivel, si DPROFUNDIDAD (variables.sh)=0 el proceso se\n
+\t\thará sin límite de profundidad. La opción -d no recibe ningún parámetro.\n\n
+\t -p1 --Muestra la cantidad de archivos clasificados de cada tipo en FORMATO DE PORCENTAJE. Estrictamente -p debe llevar como argumento el número 1.\n
+\t -h  --Descripción del Script, sintaxis y ayuda. Para su uso su SINTAXIS es la siguiente notar que -h no recibe ningun parámetro: ./Getopts -h \n
+\t la opción -h no se puede combinar\n\n 
+NOTA:\n
+las combinaciones de las ociones pueden ser las siguientes:\n
+\t ./Getopts -dp1 ../NombreDirectorio\n
+\t ./Getopts -p1d ../NmbreDirecotrio\n
+\t ./Getopts -d -p1 ../NombreDirectorio\n
+\t ./Getopts -h\n\n
+|----------------------------------------------------------------------------------------------------------------------------------------|\n
+\t\t\t\t\t\tMENSAJES DE ERROR:\n
+|----------------------------------------------------------------------------------------------------------------------------------------|\n
+\t Proceso abortado. Razón: es necesario un directorio --SOLUCIÓN: ingresar un nombre de directorio como argumento\n
+\t\t\t\t\t\t\t\t Ejemplo: ./Getopts /home/usuario/Descargas\n
+|----------------------------------------------------------------------------------------------------------------------------------------|\n
+\t Proceso abortado. Razón: opción inválida -[valor númerico] detectada. --SOLUCIÓN: no ingresar ningún parámetro con la opción -d\n
+\t\t\t\t\t\t\t\t Ejemplo: ./Getopts -d /home/usuario/Descargas\n
+|----------------------------------------------------------------------------------------------------------------------------------------|\n
+\tProceso abortado.Razón: sólo se admite -p1 --SOLUCIÓN: Estrictamente -p debe llevar como argumento el número 1\n
+\t\t\t\t\t\t\t\t Ejemplo: ./Getopts -p1 /home/usuario/Descargas\n
+|----------------------------------------------------------------------------------------------------------------------------------------|\n"
+
+
 }
 
 function PROCESO(){
